@@ -1,0 +1,22 @@
+name: Deploy MkDocs # Nom du déploiement
+on:
+    push:
+        branches:
+            - main # Déclanchement des instructions seulement lors d'un push sur la branche main
+        
+permissions:
+    contents: write # Donne les permissions en écriture et en lecture sur le dépôt
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest # Utilisation d'un conteneur avec l'environnement ubuntu
+        steps:
+            - uses: actions/checkout@v4 # Récupération du contenu de la branche main
+
+            - uses: actions/setup-python@v5 # Configuration de l'environnement python
+              with:
+                python-version: 3.11
+            
+            - run: pip install mkdocs-material # Installation de mkdocs avec le thème material
+
+            - run: mkdocs gh-deploy --config-file docs/mkdocs.yaml --force # Création du site internet en se basant sur le fichier de configuration mkdocs.yaml

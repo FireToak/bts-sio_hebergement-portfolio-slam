@@ -1,0 +1,45 @@
+site_name: Documentation - Hébergement externalisé du portfolio SLAM
+copyright: Projet - Hébergement externalisé du portfolio SLAM - Lycée Paul-Louis Courier
+
+theme:
+  name: material # Thème
+  language: fr
+  logo: assets/logo_bts-sio.png
+  favicon: assets/logo_bts-sio.png
+
+  palette: 
+    - scheme: default
+      primary: white
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Passer au mode sombre
+    - scheme: slate
+      primary: white
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Passer au mode clair
+
+  features:
+    - navigation.top # Bouton "Retour en haut"
+    - content.code.copy # Bouton pour copier les blocs de code
+
+  extra_css:
+  - assets/css/style.css
+        
+markdown_extensions: # Activation des annotations en Markdown
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences: # activation des diagrammes mermaid
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+plugins:
+  - search                  # Active la barre de recherche
