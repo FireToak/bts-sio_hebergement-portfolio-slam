@@ -71,10 +71,10 @@ Cette section recense deux scénarios possibles pour le déploiement automatisé
 
 - **Fonctionnement :** L'étudiant développe sur une branche Git secondaire (ex: `dev`). Une fois son travail terminé, il crée une *Pull Request* (demande de fusion) vers la branche `main`.
 - **Actions :** 
-  1. Le professeur examine les modifications sur l'interface Git en ligne (GitHub/GitLab).
-  2. S'il valide, il approuve la fusion (*Merge*).
-  3. Cet événement de fusion déclenche un Webhook qui notifie le VPS.
-  4. Le VPS exécute un script local réalisant un `git pull` sur le dossier de l'étudiant ciblé.
+    1. Le professeur examine les modifications sur l'interface Git en ligne (GitHub/GitLab).
+    2. S'il valide, il approuve la fusion (*Merge*).
+    3. Cet événement de fusion déclenche un Webhook qui notifie le VPS.
+    4. Le VPS exécute un script local réalisant un `git pull` sur le dossier de l'étudiant ciblé.
 
 - **Avantage :** Contrôle total avant mise en production).
 
@@ -82,8 +82,8 @@ Cette section recense deux scénarios possibles pour le déploiement automatisé
 
 - **Fonctionnement :** L'étudiant dispose des droits directs pour pousser (`git push`) ou fusionner son code sur la branche `main` de son dépôt.
 - **Actions :**
-  1. L'étudiant envoie son code sur la branche principale.
-  2. Le dépôt Git envoie instantanément une requête HTTP (Webhook) au VPS.
-  3. Le VPS s'authentifie, tire les nouvelles modifications et met à jour les fichiers web instantanément.
+    1. L'étudiant envoie son code sur la branche principale.
+    2. Le dépôt Git envoie instantanément une requête HTTP (Webhook) au VPS.
+    3. Le VPS s'authentifie, tire les nouvelles modifications et met à jour les fichiers web instantanément.
 
 - **Avantage :** Responsabilisation de l'étudiant et fluidité, mais aucun contrôle préalable du code.

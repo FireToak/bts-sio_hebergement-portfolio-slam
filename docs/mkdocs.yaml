@@ -1,5 +1,7 @@
-site_name: Documentation - Hébergement externalisé du portfolio SLAM
-copyright: Projet - Hébergement externalisé du portfolio SLAM - Lycée Paul-Louis Courier
+﻿docs_dir: .
+site_dir: ../site
+site_name: Documentation - Hébergement externaliser portfolio SLAM
+copyright: Projet - Hébergement externaliser portfolio SLAM - Lycée Paul-Louis Courier
 
 theme:
   name: material # Thème
