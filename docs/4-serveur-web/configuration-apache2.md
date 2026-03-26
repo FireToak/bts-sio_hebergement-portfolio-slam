@@ -33,7 +33,9 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
     ```
 
     `apt update` : Met à jour la liste des paquets disponibles.
+
     `apt install` : Installe le paquet spécifié.
+
     `-y` : Valide automatiquement les demandes de confirmation.
 
 2. **Désactivation des sites par défaut.** Suppression des pages d'accueil d'installation pour éviter d'exposer des informations sur le serveur.
@@ -43,7 +45,9 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
     ```
 
     `a2dissite` : Désactive un site en supprimant son lien symbolique de configuration.
+
     `000-default.conf` : Fichier de configuration du site HTTP par défaut.
+
     `default-ssl.conf` : Fichier de configuration du site sécurisé (HTTPS) par défaut.
 
 3. **Activation des modules requis.** Activation des fonctionnalités nécessaires au chiffrement, à la performance et à la réécriture d'URL.
@@ -53,9 +57,13 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
     ```
 
     `a2enmod` : Active un module Apache spécifique.
+
     `ssl` : Gère le protocole de chiffrement HTTPS.
+
     `http2` : Active le protocole HTTP/2 pour optimiser les performances de requêtage.
+
     `headers` : Permet la manipulation des en-têtes HTTP (nécessaire pour la sécurité).
+
     `rewrite` : Autorise la réécriture des URLs à la volée.
 
 ---
@@ -72,7 +80,9 @@ L'utilisation de PHP-FPM (FastCGI Process Manager) permet un traitement plus per
     ```
 
     `php8.4-fpm` : Installe le service PHP 8.4 fonctionnant de manière autonome.
+
     `proxy_fcgi` et `setenvif` : Modules permettant de déléguer l'exécution du code PHP au service FPM.
+
     `a2enconf` : Active le fichier de configuration global liant Apache à PHP 8.4.
 
 2. **Application des paramètres.**
@@ -113,6 +123,7 @@ L'utilisation de PHP-FPM (FastCGI Process Manager) permet un traitement plus per
     ```
 
     `apachectl configtest` : Analyse la syntaxe des fichiers Apache (doit impérativement répondre `Syntax OK`).
+
     `systemctl restart` : Redémarre complètement le service pour appliquer la configuration de sécurité globale.
 
 ---
@@ -128,7 +139,9 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`). La validati
     ```
 
     `certbot` : Client officiel pour l'obtention automatisée de certificats.
+
     `pip3 install` : Télécharge le module d'intégration DNS spécifique à Infomaniak.
+
     `--break-system-packages` : Force l'installation globale du paquet Python sur l'environnement système.
 
 2. **Sécurisation des identifiants API.**
@@ -140,6 +153,7 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`). La validati
     ```
 
     `tee` : Écrit le jeton d'authentification dans le fichier cible avec les privilèges élevés.
+
     `chmod 600` : Restreint les droits de lecture et d'écriture au seul utilisateur administrateur (`root`).
 
 3. **Provisionnement automatisé du certificat.**
@@ -149,8 +163,11 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`). La validati
     ```
 
     `certonly` : Génère le certificat sans altérer la configuration d'Apache.
+
     `--authenticator dns-infomaniak` : Délègue la preuve de possession du domaine à l'API Infomaniak.
+
     `--non-interactive` : Exécute la commande de façon silencieuse sans invite utilisateur.
+
     `--agree-tos -m` : Valide les conditions d'utilisation et spécifie l'email de contact.
 
 4. **Restriction d'accès aux clés cryptographiques.**
@@ -161,6 +178,7 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`). La validati
     ```
 
     `privkey.pem` : Clé privée du certificat (droits `600` requis pour éviter toute compromission).
+
     `fullchain.pem` : Certificat public (droits `644` permettant la lecture par le service web).
 
 5. **Automatisation du renouvellement.**
@@ -176,11 +194,14 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`). La validati
     ```
 
     `crontab -e` : Édite la table de planification des tâches.
+
     `certbot renew` : Interroge l'autorité pour renouveler les certificats approchant de leur date d'expiration.
+
     `--quiet` : Masque les sorties standards dans les journaux.
+
     `--post-hook` : Action conditionnelle rechargeant Apache uniquement en cas de renouvellement effectif.
 
 ---
 ## Annexe
 
-- [Déploiement portfolio étudiant](#)
+- [Déploiement portfolio étudiant](./deploiement-portfolio-etudiant.md)

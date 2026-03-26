@@ -33,7 +33,9 @@ Chaque étudiant se voit attribuer un utilisateur système sans droit de connexi
     ```
 
     `adduser` : Crée un nouvel utilisateur et un groupe du même nom.
+    
     `--system` : Définit le compte comme un compte de service (identifiant inférieur à 1000).
+
     `--disabled-login` : Interdit l'ouverture d'une session shell avec ce compte (sécurité).
 
 2. **Ajout d'Apache au groupe de l'étudiant.**
@@ -53,7 +55,9 @@ Chaque étudiant se voit attribuer un utilisateur système sans droit de connexi
     ```
 
     `mkdir -p` : Crée l'arborescence complète du répertoire cible.
+
     `chown -R` : Attribue la propriété du dossier et de son contenu à l'utilisateur et au groupe `etu-nom`.
+
     `chmod -R 750` : Accorde tous les droits au propriétaire (`7`), les droits de lecture et d'exécution au groupe (`5` - permet à Apache de lire), et aucun droit aux autres utilisateurs (`0`).
 
 ---
@@ -88,9 +92,13 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
     ```
 
     `[etu-nom]` : Nomme le pool d'exécution.
+
     `user / group` : Définit l'identité sous laquelle le code PHP sera exécuté.
+
     `listen` : Crée un socket Unix unique pour la communication entre Apache et ce pool FPM précis.
+
     `listen.owner / group` : Autorise Apache (`www-data`) à transmettre des requêtes à ce socket.
+
     `pm.*` : Gère dynamiquement l'allocation de la mémoire et des processus pour ce portfolio.
 
 ---
@@ -107,6 +115,7 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
     ```
 
     `find -type d -exec chmod 750` : Applique les droits de lecture/exécution (accès) uniquement aux dossiers.
+
     `find -type f -exec chmod 640` : Rend les fichiers lisibles, mais non exécutables directement par le système.
 
 ---
@@ -144,5 +153,7 @@ Pour router le trafic vers le bon dossier et le bon socket PHP, un hôte virtuel
     ```
 
     `apachectl configtest` : Vérifie l'absence d'erreurs de syntaxe dans les configurations d'hôtes virtuels.
+
     `systemctl restart php8.4-fpm` : Démarre le nouveau pool d'isolation dédié à l'étudiant.
+
     `systemctl reload apache2` : Prend en compte le nouveau site web de manière transparente.
