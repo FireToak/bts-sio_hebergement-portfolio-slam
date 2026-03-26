@@ -30,7 +30,7 @@ Cette documentation est structurée selon les standards de l'industrie (de la co
 
 * **🏠 Vue d'ensemble** : Contexte et architecture globale.
 * **🏗️ Infrastructure** : Configuration DNS et paramètres du VPS.
-* **🔒 Sécurité** : Durcissement serveur (UFW, Fail2ban) et certificats TLS.
+* **🔒 Sécurité** : Durcissement serveur (Fail2ban, Crowdsec, UWF).
 * **⚙️ Serveur Web** : Déploiement d'Apache et des VirtualHosts.
 * **🚀 CI/CD** : Automatisation des mises à jour Git via Webhooks.
 * **📘 Runbooks** :
