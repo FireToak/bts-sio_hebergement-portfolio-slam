@@ -157,20 +157,46 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
     `systemctl reload` : Recharge la configuration à chaud sans interrompre les connexions en cours.
 
 ---
-## 5. Chiffrement TLS (Let's Encrypt)
+## 5. Chiffrement TLS (Let's Encrypt - Certificat Wildcard)
 
-1. **Installation de Certbot.** Outil officiel pour automatiser la gestion des certificats.
+1. **Installation de Certbot.** Outil officiel pour la gestion des certificats. Les certificats Wildcard (`*`) nécessitent une validation par DNS (preuve de possession du domaine) et non par HTTP.
 
     ```bash
     sudo apt install -y certbot python3-certbot-apache
     ```
+    `apt install` : Installe le paquet Certbot.
 
-2. **Génération et configuration du certificat.**
+2. **Génération du certificat Wildcard (Validation DNS).**
 
     ```bash
-    sudo certbot --apache -d etu_nom.domaine_vps.ext
+    sudo certbot certonly --manual --preferred-challenges dns -d "*.domaine_vps.ext" -d "domaine_vps.ext"
     ```
 
-    `certbot --apache` : Lance Certbot avec le plugin Apache. Il va automatiquement valider le domaine, générer le certificat TLS, créer la configuration VHost pour le port 443 (HTTPS) et configurer la redirection de HTTP vers HTTPS.
+    `certonly` : Génère uniquement le certificat sans altérer automatiquement la configuration d'Apache (nécessaire pour les wildcards).
 
-    `-d` : Spécifie le domaine à certifier.
+    `--manual` : Active le mode interactif. Certbot te demandera de créer un enregistrement TXT spécifique dans ta zone DNS Infomaniak.
+
+    `--preferred-challenges dns` : Force la vérification de la propriété du domaine via le DNS.
+
+    `-d "*.domaine_vps.ext"` : Génère le certificat pour n'importe quel sous-domaine (le `*` agit comme un joker/wildcard).
+
+3. **Configuration du renouvellement automatisé (Cron).** Les certificats Let's Encrypt sont valides 90 jours. Certbot gère nativement le renouvellement lorsqu'il reste moins de 30 jours (recommandation officielle). Voici comment automatiser la vérification quotidienne et recharger Apache.
+
+    ```bash
+    sudo crontab -e
+    ```
+
+    *Ajoute cette ligne à la fin du fichier :*
+    ```bash
+    0 3 * * * /usr/bin/certbot renew --post-hook "systemctl reload apache2" >> /var/log/le-renew.log
+    ```
+
+    `0 3 * * *` : Planifie la tâche cron tous les jours à 03h00 du matin.
+
+    `certbot renew` : Parcourt les certificats installés. S'ils sont proches de l'expiration (par défaut 30 jours), il tente de les renouveler.
+
+    `--post-hook "..."` : Commande exécutée uniquement si un renouvellement réussit. Ici, on recharge Apache pour qu'il prenne en compte les nouvelles clés cryptographiques.
+    
+    `>> /var/log/le-renew.log` : Enregistre le résultat de la commande dans un fichier journal pour te permettre de vérifier le bon déroulement (la "vérification" demandée).
+
+> **Notion importante sur l'automatisation Wildcard :** La commande `renew` planifiée ci-dessus échouera sur un certificat créé avec `--manual` car Let's Encrypt exigera un nouvel enregistrement TXT. Pour une automatisation totale en milieu professionnel, il faut utiliser un plugin DNS spécifique à ton hébergeur (ex: API Infomaniak) qui créera l'enregistrement TXT dynamiquement lors du cron.
