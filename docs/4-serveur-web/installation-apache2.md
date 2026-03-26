@@ -157,11 +157,6 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
     `systemctl reload` : Recharge la configuration à chaud sans interrompre les connexions en cours.
 
 ---
-## 5. Chiffrement TLS (Let's Encrypt - Certificat Wildcard)
-
-Voici la section rédigée avec un ton professionnel et intégrant l'automatisation complète de la zone DNS.
-
----
 ## 5. Chiffrement TLS (Let's Encrypt et API DNS)
 
 L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`) pour couvrir dynamiquement les sous-domaines des projets. La validation s'effectue par un challenge DNS (preuve de possession) automatisé via l'API de l'hébergeur (Infomaniak).
