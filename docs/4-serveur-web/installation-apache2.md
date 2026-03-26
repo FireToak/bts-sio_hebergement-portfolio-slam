@@ -194,7 +194,7 @@ L'infrastructure requiert des certificats Wildcard (`*.bts-sio.eu`) pour couvrir
 3. **Provisionnement automatisé du certificat Wildcard.** Lancement de la requête de création. Le module se connecte à l'API, crée l'enregistrement DNS TXT temporaire de validation, valide le domaine et supprime la trace DNS.
 
     ```bash
-    sudo certbot certonly --authenticator dns-infomaniak --dns-infomaniak-credentials /etc/letsencrypt/infomaniak.ini -d "*.bts-sio.eu" -d "bts-sio.eu" --non-interactive --agree-tos -m admin@domaine_vps.ext
+    sudo certbot certonly --authenticator dns-infomaniak --dns-infomaniak-credentials /etc/letsencrypt/infomaniak.ini -d "*.bts-sio.eu" -d "bts-sio.eu" --non-interactive --agree-tos -m contactn@bts-sio.eu
     ```
 
     `certonly` : Demande uniquement la génération du certificat sans modifier la configuration du serveur web.
