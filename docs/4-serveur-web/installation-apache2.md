@@ -159,44 +159,72 @@ Déploiement et sécurisation d'un serveur web Apache2 sur Debian 12 pour héber
 ---
 ## 5. Chiffrement TLS (Let's Encrypt - Certificat Wildcard)
 
-1. **Installation de Certbot.** Outil officiel pour la gestion des certificats. Les certificats Wildcard (`*`) nécessitent une validation par DNS (preuve de possession du domaine) et non par HTTP.
+Voici la section rédigée avec un ton professionnel et intégrant l'automatisation complète de la zone DNS.
+
+---
+## 5. Chiffrement TLS (Let's Encrypt et API DNS)
+
+L'infrastructure requiert des certificats Wildcard (`*.domaine.ext`) pour couvrir dynamiquement les sous-domaines des projets. La validation s'effectue par un challenge DNS (preuve de possession) automatisé via l'API de l'hébergeur (Infomaniak).
+
+1. **Installation du client ACME et du module d'interface de programmation (API).** Mise en place de Certbot et de son greffon spécifique pour communiquer avec le fournisseur de nom de domaine.
 
     ```bash
-    sudo apt install -y certbot python3-certbot-apache
+    sudo apt install -y certbot python3-pip
+    sudo pip3 install certbot-dns-infomaniak --break-system-packages
     ```
-    `apt install` : Installe le paquet Certbot.
 
-2. **Génération du certificat Wildcard (Validation DNS).**
+    `apt install` : Installe le client Certbot et le gestionnaire de paquets Python (`pip`).
+
+    `pip3 install` : Télécharge le module d'intégration DNS Infomaniak.
+
+    `--break-system-packages` : Autorise l'installation globale du paquet Python sur Debian 12 en dérogeant à la politique d'environnement virtuel strict.
+
+2. **Sécurisation des identifiants d'authentification API.** Création et restriction d'accès au fichier contenant le jeton d'authentification (Token) de l'hébergeur.
 
     ```bash
-    sudo certbot certonly --manual --preferred-challenges dns -d "*.domaine_vps.ext" -d "domaine_vps.ext"
+    sudo mkdir -p /etc/letsencrypt
+    echo "dns_infomaniak_token = VOTRE_TOKEN_API" | sudo tee /etc/letsencrypt/infomaniak.ini
+    sudo chmod 600 /etc/letsencrypt/infomaniak.ini
     ```
 
-    `certonly` : Génère uniquement le certificat sans altérer automatiquement la configuration d'Apache (nécessaire pour les wildcards).
+    `echo ... | tee` : Écrit la variable et la valeur du token dans le fichier de configuration avec les privilèges administrateur.
 
-    `--manual` : Active le mode interactif. Certbot te demandera de créer un enregistrement TXT spécifique dans ta zone DNS Infomaniak.
+    `chmod 600` : Restreint les droits de lecture et d'écriture au seul utilisateur `root` pour prévenir toute compromission du jeton d'API.
 
-    `--preferred-challenges dns` : Force la vérification de la propriété du domaine via le DNS.
+3. **Provisionnement automatisé du certificat Wildcard.** Lancement de la requête de création. Le module se connecte à l'API, crée l'enregistrement DNS TXT temporaire de validation, valide le domaine et supprime la trace DNS.
 
-    `-d "*.domaine_vps.ext"` : Génère le certificat pour n'importe quel sous-domaine (le `*` agit comme un joker/wildcard).
+    ```bash
+    sudo certbot certonly --authenticator dns-infomaniak --dns-infomaniak-credentials /etc/letsencrypt/infomaniak.ini -d "*.domaine_vps.ext" -d "domaine_vps.ext" --non-interactive --agree-tos -m admin@domaine_vps.ext
+    ```
 
-3. **Configuration du renouvellement automatisé (Cron).** Les certificats Let's Encrypt sont valides 90 jours. Certbot gère nativement le renouvellement lorsqu'il reste moins de 30 jours (recommandation officielle). Voici comment automatiser la vérification quotidienne et recharger Apache.
+    `certonly` : Demande uniquement la génération du certificat sans modifier la configuration du serveur web.
+
+    `--authenticator dns-infomaniak` : Délègue le challenge de validation au module Infomaniak.
+
+    `--dns-infomaniak-credentials` : Cible le fichier sécurisé contenant le token API.
+
+    `-d` : Spécifie les domaines à couvrir (Wildcard et domaine racine).
+
+    `--non-interactive` : Exécute la commande sans demander de saisie utilisateur (idéal pour les scripts d'industrialisation).
+
+    `--agree-tos -m` : Accepte les conditions d'utilisation et définit l'adresse de contact technique.
+
+4. **Automatisation du cycle de vie (Renouvellement).** Planification d'une tâche de maintenance pour prolonger la validité des certificats avant leur expiration (90 jours) et application de la nouvelle cryptographie.
 
     ```bash
     sudo crontab -e
     ```
 
-    *Ajoute cette ligne à la fin du fichier :*
+    *Ajouter la directive suivante :*
+
     ```bash
-    0 3 * * * /usr/bin/certbot renew --post-hook "systemctl reload apache2" >> /var/log/le-renew.log
+    0 3 * * * /usr/bin/certbot renew --quiet --post-hook "systemctl reload apache2"
     ```
 
-    `0 3 * * *` : Planifie la tâche cron tous les jours à 03h00 du matin.
+    `0 3 * * *` : Déclenche le processus de contrôle quotidiennement à 03h00.
 
-    `certbot renew` : Parcourt les certificats installés. S'ils sont proches de l'expiration (par défaut 30 jours), il tente de les renouveler.
+    `certbot renew` : Interroge l'autorité de certification pour renouveler les certificats expirant dans moins de 30 jours (l'API DNS sera appelée automatiquement).
 
-    `--post-hook "..."` : Commande exécutée uniquement si un renouvellement réussit. Ici, on recharge Apache pour qu'il prenne en compte les nouvelles clés cryptographiques.
-    
-    `>> /var/log/le-renew.log` : Enregistre le résultat de la commande dans un fichier journal pour te permettre de vérifier le bon déroulement (la "vérification" demandée).
+    `--quiet` : Supprime les sorties standards (logs) sauf en cas d'erreur.
 
-> **Notion importante sur l'automatisation Wildcard :** La commande `renew` planifiée ci-dessus échouera sur un certificat créé avec `--manual` car Let's Encrypt exigera un nouvel enregistrement TXT. Pour une automatisation totale en milieu professionnel, il faut utiliser un plugin DNS spécifique à ton hébergeur (ex: API Infomaniak) qui créera l'enregistrement TXT dynamiquement lors du cron.
+    `--post-hook` : Exécute le rechargement du service Apache2 (`systemctl reload`) de manière conditionnelle, uniquement si un certificat a été effectivement renouvelé.
