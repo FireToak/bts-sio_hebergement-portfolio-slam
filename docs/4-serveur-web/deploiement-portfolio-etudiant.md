@@ -26,14 +26,14 @@ Procédure de déploiement d'un portfolio pour les étudiants du BTS SIO sur le 
 
 Chaque étudiant se voit attribuer un utilisateur système sans droit de connexion. Le serveur web (`www-data`) est autorisé à lire les fichiers via une appartenance de groupe.
 
-1. **Création de l'utilisateur dédié.** (Remplacer `etu-nom` par l'identifiant de l'étudiant comme par exemple : `pierre-jean`).
+1. **Création de l'utilisateur dédié.** (Remplacer `<nom-prenom>` par l'identifiant de l'étudiant comme par exemple : `pierre-jean`).
 
     ```bash
-    sudo adduser --system --group --disabled-login etu-nom
+    sudo adduser --system --group --disabled-login www-<nom-prenom>
     ```
 
     `adduser` : Crée un nouvel utilisateur et un groupe du même nom.
-    
+
     `--system` : Définit le compte comme un compte de service (identifiant inférieur à 1000).
 
     `--disabled-login` : Interdit l'ouverture d'une session shell avec ce compte (sécurité).
@@ -41,17 +41,17 @@ Chaque étudiant se voit attribuer un utilisateur système sans droit de connexi
 2. **Ajout d'Apache au groupe de l'étudiant.**
 
     ```bash
-    sudo usermod -aG etu-nom www-data
+    sudo usermod -aG www-<nom-prenom> www-data
     ```
 
-    `usermod -aG` : Ajoute l'utilisateur système `www-data` (Apache) au groupe `etu-nom` pour lui permettre de lire les fichiers statiques (HTML, CSS, images).
+    `usermod -aG` : Ajoute l'utilisateur système `www-data` (Apache) au groupe `www-<nom-prenom>` pour lui permettre de lire les fichiers statiques (HTML, CSS, images).
 
 3. **Création du répertoire web et application des droits.**
 
     ```bash
     sudo mkdir -p /var/www/etu-nom/public_html
-    sudo chown -R etu-nom:etu-nom /var/www/etu-nom
-    sudo chmod -R 750 /var/www/etu-nom
+    sudo chown -R etu-nom:etu-nom /var/www/www-<nom-prenom>
+    sudo chmod -R 750 /var/www/www-<nom-prenom>
     ```
 
     `mkdir -p` : Crée l'arborescence complète du répertoire cible.
@@ -68,7 +68,7 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
 1. **Création du fichier de configuration du pool.**
 
     ```bash
-    sudo nano /etc/php/8.4/fpm/pool.d/etu-nom.conf
+    sudo nano /etc/php/8.4/fpm/pool.d/www-<nom-prenom>.conf
     ```
 
 2. **Ajout des directives de configuration.** 
@@ -77,10 +77,10 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
 
     ```ini
     [etu-nom]
-    user = etu-nom
-    group = etu-nom
+    user = www-<nom-prenom>
+    group = www-<nom-prenom>
 
-    listen = /run/php/php8.4-fpm-etu-nom.sock
+    listen = /run/php/php8.4-fpm-www-<nom-prenom>.sock
     listen.owner = www-data
     listen.group = www-data
 
@@ -91,7 +91,7 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
     pm.max_spare_servers = 3
     ```
 
-    `[etu-nom]` : Nomme le pool d'exécution.
+    `[www-<nom-prenom>]` : Nomme le pool d'exécution.
 
     `user / group` : Définit l'identité sous laquelle le code PHP sera exécuté.
 
@@ -104,14 +104,14 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
 ---
 ## 3. Déploiement du code source
 
-1. **Transfert des fichiers.** Copier les fichiers du portfolio de l'étudiant dans le répertoire `/var/www/etu-nom/public_html/`.
+1. **Transfert des fichiers.** Copier les fichiers du portfolio de l'étudiant dans le répertoire `/var/www/www-<nom-prenom>/public_html/`.
 
 2. **Sécurisation finale des fichiers.** S'assurer que les droits sont corrects après l'importation.
 
     ```bash
-    sudo chown -R etu-nom:etu-nom /var/www/etu-nom/public_html
-    sudo find /var/www/etu-nom/public_html -type d -exec chmod 750 {} \;
-    sudo find /var/www/etu-nom/public_html -type f -exec chmod 640 {} \;
+    sudo chown -R www-<nom-prenom>:www-<nom-prenom> /var/www/www-<nom-prenom>/public_html
+    sudo find /var/www/www-<nom-prenom>/public_html -type d -exec chmod 750 {} \;
+    sudo find /var/www/www-<nom-prenom>/public_html -type f -exec chmod 640 {} \;
     ```
 
     `find -type d -exec chmod 750` : Applique les droits de lecture/exécution (accès) uniquement aux dossiers.
@@ -126,7 +126,7 @@ Pour router le trafic vers le bon dossier et le bon socket PHP, un hôte virtuel
 1. **Création du fichier de configuration.**
 
     ```bash
-    sudo nano /etc/apache2/sites-available/etu-nom.conf
+    sudo nano /etc/apache2/sites-available/www-<nom-prenom>.conf
     ```
 
 2. **Application du modèle.** Copier le contenu du modèle standardisé et remplacer les variables d'environnement (nom de domaine, chemins et socket FPM).
@@ -139,7 +139,7 @@ Pour router le trafic vers le bon dossier et le bon socket PHP, un hôte virtuel
 1. **Activation du site.**
 
     ```bash
-    sudo a2ensite etu-nom.conf
+    sudo a2ensite www-<nom-prenom>.conf
     ```
 
     `a2ensite` : Crée le lien symbolique activant le nouveau VirtualHost.
