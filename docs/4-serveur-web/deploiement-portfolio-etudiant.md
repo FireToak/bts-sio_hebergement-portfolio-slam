@@ -68,7 +68,7 @@ La création d'un "Pool" FPM spécifique force l'exécution des scripts PHP sous
 1. **Création du fichier de configuration du pool.**
 
     ```bash
-    sudo nano /etc/php/8.4/fpm/pool.d/www-<nom-prenom>.conf
+    sudoedit /etc/php/8.4/fpm/pool.d/www-<nom-prenom>.conf
     ```
 
 2. **Ajout des directives de configuration.** 
@@ -126,7 +126,7 @@ Pour router le trafic vers le bon dossier et le bon socket PHP, un hôte virtuel
 1. **Création du fichier de configuration.**
 
     ```bash
-    sudo nano /etc/apache2/sites-available/www-<nom-prenom>.conf
+    sudoedit /etc/apache2/sites-available/www-<nom-prenom>.conf
     ```
 
 2. **Application du modèle.** Copier le contenu du modèle standardisé et remplacer les variables d'environnement (nom de domaine, chemins et socket FPM).
