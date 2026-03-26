@@ -16,7 +16,9 @@ Les étudiants doivent concevoir et déployer un portfolio professionnel dynamiq
 *Architecture de résolution et de routage des requêtes HTTP*
 
 **Fonctionnement de l'infrastructure :**
+
 1. **Résolution DNS :** Le navigateur du client effectue une requête vers les serveurs faisant autorité d'Infomaniak. La zone DNS traduit le sous-domaine de l'étudiant (ex: `jean-pierre.bts-sio.eu`) en adresse IP (IPv4 ou IPv6) pointant vers le VPS.
+
 2. **Routage HTTP/Web :** Le client envoie sa requête web au VPS. Le service **Apache** réceptionne la demande et, grâce à sa configuration en **VirtualHosts**, identifie le sous-domaine ciblé pour servir le bon dossier système contenant les fichiers web de l'étudiant, tout en isolant les environnements.
 
 ---
